@@ -1,11 +1,13 @@
 import express from "express";
-import userRoutes from "./routes/User.route.js"
+import userRoutes from "./routes/index.js"
+import errorMiddleware from "./middlewares/error.middleware.js";
 
 class App {
   constructor() {
     this.app = express();
     this.middleWare();
     this.routes();
+    this.errorHandler();
   }
 
   middleWare() {
@@ -13,8 +15,13 @@ class App {
   }
 
   routes() {
-    this.app.use("/api/user", userRoutes);
+    this.app.use("/api/v1", userRoutes);
   }
+
+  errorHandler() {
+    this.app.use(errorMiddleware);
+  }
+
   getServer() {
     return this.app;
   }

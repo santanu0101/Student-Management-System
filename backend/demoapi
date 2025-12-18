@@ -1,0 +1,119 @@
+📚 Student Management System – API Endpoints (Industry Ready)
+
+Base URL
+
+/api/v1
+
+🔐 1. Auth / User APIs
+
+Purpose: Login, role-based access
+
+Method	Endpoint	                Description
+POST	/auth/login	            Login user
+POST    /auth/refresh           Refresh access token
+GET	    /auth/me	            Get logged-in user profile
+POST	/auth/logout	        Logout
+PATCH	/auth/change-password	Change password
+
+
+🏢 2. Department APIs
+Method	Endpoint	                Description
+POST	/departments	        Create department
+GET	    /departments	        Get all departments
+GET	    /departments/:id	    Get department by ID
+PATCH	/departments/:id	    Update department
+DELETE	/departments/:id	    Delete department
+PATCH	/departments/:id/hod	Assign Head of Department
+
+
+🎓 3. Student APIs
+Method	        Endpoint	            Description
+POST	        /students	            Create student
+GET	            /students	            Get all students (filter by status, department)
+GET	            /students/:id	        Get student details
+PATCH	        /students/:id	        Update student
+DELETE	        /students/:id	        Soft delete / suspend student
+PATCH	        /students/:id/status	Change status (active, graduated, suspended)
+GET	            /students/:id/courses	Student enrolled courses
+GET	            /students/:id/payments	Student payment history
+GET	            /students/:id/attendance	Student attendance
+
+
+👨‍🏫 4. Instructor APIs
+Method	        Endpoint	            Description
+POST	       /instructors	            Create instructor
+GET	           /instructors	            Get all instructors
+GET	           /instructors/:id	        Get instructor
+PATCH	       /instructors/:id	        Update instructor
+PATCH          /instructors/:id/status  Activate / Deactivate
+DELETE	       /instructors/:id	        Remove instructor
+GET	           /instructors/:id/courses	Courses taught
+
+
+📘 5. Course APIs
+Method	        Endpoint	            Description
+POST	        /courses	            Create course
+GET	            /courses	            Get all courses
+GET	            /courses/:id	        Get course details
+PATCH	        /courses/:id	        Update course
+DELETE	        /courses/:id	        Delete course
+PATCH	        /courses/:id/instructor	Assign instructor
+GET	            /courses/:id/students	Enrolled students
+
+
+🧾 6. Enrollment APIs (Many-to-Many)
+Method	    Endpoint	                    Description
+POST	    /enrollments	                Enroll student to course
+GET	        /enrollments	                All enrollments
+GET	        /enrollments/student/:studentId	Student enrollments
+GET	        /enrollments/course/:courseId	Course enrollments
+PATCH	    /enrollments/:id/status	        Drop / complete
+DELETE	    /enrollments/:id	            Remove enrollment
+
+
+💰 7. Payment APIs
+Method	    Endpoint	                    Description
+POST	    /payments	                    Add payment
+GET	        /payments	                    Get all payments
+GET	        /payments/:id	                Get payment
+GET	        /payments/student/:studentId	Student payments
+PATCH	    /payments/:id/status	        Update payment status
+DELETE	    /payments/:id	                Delete payment
+
+
+🕒 8. Attendance APIs   
+Method	        Endpoint	                        Description
+POST	        /attendance	                        Mark attendance
+GET	            /attendance	                        All attendance
+GET	            /attendance/student/:studentId	    Student attendance
+GET	            /attendance/course/:courseId	    Course attendance
+PATCH	        /attendance/:id	                    Update attendance
+DELETE	        /attendance/:id	                    Delete attendance
+
+
+📝 9. Marks / Assessment APIs
+Method	            Endpoint	                    Description
+POST	            /marks	                        Add marks
+GET	                /marks	                        Get all marks
+GET	                /marks/student/:studentId	    Student marks
+GET	                /marks/course/:courseId	        Course marks
+PATCH	            /marks/:id	                    Update marks
+DELETE	            /marks/:id	                    Delete marks
+
+
+📅 10. Class Schedule APIs
+Method	            Endpoint	                        Description
+POST	            /schedules	                    Create class schedule
+GET	                /schedules	                    Get all schedules
+GET	                /schedules/course/:courseId	    Course schedule
+GET	           /schedules/instructor/:instructorId	Instructor schedule
+PATCH	            /schedules/:id	                Update schedule
+DELETE	            /schedules/:id	                Delete schedule
+
+
+🔔 11. Notification APIs
+Method	       Endpoint	                        Description
+POST	       /notifications	            Create notification
+GET	           /notifications	            Get user notifications
+PATCH	       /notifications/:id/read	    Mark as read
+DELETE	       /notifications/:id	        Delete notification

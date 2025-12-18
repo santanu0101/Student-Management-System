@@ -14,8 +14,10 @@
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.0.1"
+    "mongoose": "^9.0.1",
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"
