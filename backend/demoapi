@@ -17,7 +17,7 @@ PATCH	/auth/change-password	Change password
 
 
 🏢 2. Department APIs
-Method	Endpoint	                Description
+Method	    Endpoint	                Description
 POST	/departments	        Create department
 GET	    /departments	        Get all departments
 GET	    /departments/:id	    Get department by ID

@@ -5,6 +5,7 @@ const departmentSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
+      unique: true,
       trim: true,
       index: true,
     },
@@ -14,6 +15,12 @@ const departmentSchema = new mongoose.Schema(
       trime: true,
     },
 
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
+
     headOfDepartment: {
       type: Schema.Types.ObjectId,
       ref: "Instructor",
@@ -21,6 +28,11 @@ const departmentSchema = new mongoose.Schema(
     },
   },
   { timestamps: true }
+);
+
+departmentSchema.index(
+  { name: 1 },
+  { unique: true, collation: { locale: "en", strength: 2 } }
 );
 
 export const Department = mongoose.model("Department", departmentSchema);

@@ -10,53 +10,49 @@ import { ApiError } from "../../utils/ApiError.js";
 export class AuthService {
   //register
   static async register(data) {
-      try {
-        const { email, password, role, studentId, instructorId } = data;
-    
-        const existingUser = await User.findOne({ email });
-        if (existingUser) throw new ApiError(409, "User already exists");
-    
-        const user = await User.create({
-          role: role,
-          email: email,
-          password: password,
-          student: studentId || null,
-          instructor: instructorId || null,
-        });
-    
-        return user;
-      } catch (error) {
-        console.error(error)
-      }
-    
+    try {
+      const { email, password, role, studentId, instructorId } = data;
+
+      const existingUser = await User.findOne({ email });
+      if (existingUser) throw new ApiError(409, "User already exists");
+
+      const user = await User.create({
+        role: role,
+        email: email,
+        password: password,
+        student: studentId || null,
+        instructor: instructorId || null,
+      });
+
+      return user;
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   //login
   static async login(data) {
-    try {
-      const { email, password } = data;
-      const user = await User.findOne({ email }).select("+password");
-      if (!user) throw new ApiError(401, "Invalid credentials");
-  
-      const match = await user.isPasswordCorrect(password);
-      if (!match) throw new ApiError(401, "Invalid credentials");
-  
-      const payload = { userId: user._id, role: user.role };
-  
-      const accessToken = generateAccessToken(payload);
-      const refreshToken = generateRefreshToken({ userId: user._id });
-  
-      await redis.set(
-        `refresh:${user._id}`,
-        refreshToken,
-        "EX",
-        7 * 24 * 60 * 60
-      );
-  
-      return { accessToken, refreshToken, role: user.role };
-    } catch (error) {
-      console.log(error)
-    }
+    const { email, password } = data;
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) throw new ApiError(401, "Invalid credentials");
+
+    const match = await user.isPasswordCorrect(password);
+    // console.log(match)
+    if (!match) throw new ApiError(401, "Invalid credentials is");
+
+    const payload = { userId: user._id, role: user.role };
+
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken({ userId: user._id });
+
+    await redis.set(
+      `refresh:${user._id}`,
+      refreshToken,
+      "EX",
+      7 * 24 * 60 * 60
+    );
+
+    return { accessToken, refreshToken, role: user.role };
   }
 
   //refresh token verify and accesstoken generate

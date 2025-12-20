@@ -1,3 +1,5 @@
+import mongoose, { Schema } from "mongoose";
+
 const classScheduleSchema = new Schema(
   {
     course: {
