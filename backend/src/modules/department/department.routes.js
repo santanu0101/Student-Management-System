@@ -63,12 +63,6 @@ router.get("/:id", authMiddleware, asyncHandler(DepartmentController.getById));
  *     tags: [Departments]
  *     security:
  *       - BearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
  *     requestBody:
  *       required: true
  *       content:

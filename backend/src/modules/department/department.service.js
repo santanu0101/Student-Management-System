@@ -1,8 +1,8 @@
+import redis from "../../config/redis.js";
 import { Department, Instructor } from "../../models/index.js";
 import { ApiError } from "../../utils/ApiError.js";
 
 export class DepartmentService {
-
   // Create Department
   static async createDepartment(data) {
     const exists = await Department.findOne({
@@ -13,18 +13,40 @@ export class DepartmentService {
       throw new ApiError(409, "Department already exists");
     }
 
-    return Department.create(data);
+    const department = await Department.create(data);
+
+    await redis.del("departments:list");
+
+    return department;
   }
 
   // Get All Departments
   static async getAllDepartments() {
-    return Department.find({ isActive: true })
+    const cacheKey = "departments:list";
+
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
+    const departments = await Department.find({ isActive: true })
       .populate("headOfDepartment", "firstName lastName email")
       .sort({ createdAt: -1 });
+
+    await redis.setex(cacheKey, 300, JSON.stringify(departments));
+
+    return departments;
   }
 
   // Get Department By ID
   static async getDepartmentById(id) {
+    const cacheKey = `departments:${id}`;
+
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
     const department = await Department.findOne({
       _id: id,
       isActive: true,
@@ -33,6 +55,8 @@ export class DepartmentService {
     if (!department) {
       throw new ApiError(404, "Department not found");
     }
+
+    await redis.setex(cacheKey, 300, JSON.stringify(department));
 
     return department;
   }
@@ -60,7 +84,12 @@ export class DepartmentService {
     }
 
     Object.assign(department, data);
-    return department.save();
+    const updated = await department.save();
+
+    await redis.del("departments:list");
+    await redis.del(`departments:${id}`);
+
+    return updated;
   }
 
   // Soft Delete Department
@@ -75,7 +104,12 @@ export class DepartmentService {
     }
 
     department.isActive = false;
-    return department.save();
+    await department.save();
+
+    await redis.del("departments:list");
+    await redis.del(`departments:${id}`);
+
+    return department;
   }
 
   // Assign Head of Department
@@ -95,6 +129,11 @@ export class DepartmentService {
     }
 
     department.headOfDepartment = instructorId;
-    return department.save();
+    await department.save();
+
+    await redis.del("departments:list");
+    await redis.del(`departments:${departmentId}`);
+
+    return department;
   }
 }
