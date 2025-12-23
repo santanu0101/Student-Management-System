@@ -5,14 +5,18 @@ const departmentSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
+    },
+
+    nameLower: {
+      type: String,
+      unique: true,
       index: true,
     },
 
     building: {
       type: String,
-      trime: true,
+      trim: true,
     },
 
     isActive: {
@@ -30,9 +34,11 @@ const departmentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-departmentSchema.index(
-  { name: 1 },
-  { unique: true, collation: { locale: "en", strength: 2 } }
-);
+departmentSchema.pre("save", function (next) {
+  if (this.name) {
+    this.nameLower = this.name.toLowerCase();
+  }
+  next();
+});
 
 export const Department = mongoose.model("Department", departmentSchema);

@@ -1,18 +1,20 @@
 import redis from "../../config/redis.js";
 import { Department, Instructor } from "../../models/index.js";
 import { ApiError } from "../../utils/ApiError.js";
+import { validateObjectId } from "../../utils/validateObjectId.js";
 
 export class DepartmentService {
   // Create Department
   static async createDepartment(data) {
-    const exists = await Department.findOne({
-      name: new RegExp(`^${data.name}$`, "i"),
-    });
+    if (data.name) {
+      const exists = await Department.findOne({
+        nameLower: data.name.toLowerCase(),
+      });
 
-    if (exists) {
-      throw new ApiError(409, "Department already exists");
+      if (exists) {
+        throw new ApiError(409, "Department already exists");
+      }
     }
-
     const department = await Department.create(data);
 
     await redis.del("departments:list");
@@ -31,7 +33,8 @@ export class DepartmentService {
 
     const departments = await Department.find({ isActive: true })
       .populate("headOfDepartment", "firstName lastName email")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     await redis.setex(cacheKey, 300, JSON.stringify(departments));
 
@@ -40,6 +43,7 @@ export class DepartmentService {
 
   // Get Department By ID
   static async getDepartmentById(id) {
+    validateObjectId(id, "department id");
     const cacheKey = `departments:${id}`;
 
     const cached = await redis.get(cacheKey);
@@ -50,7 +54,9 @@ export class DepartmentService {
     const department = await Department.findOne({
       _id: id,
       isActive: true,
-    }).populate("headOfDepartment", "firstName lastName email");
+    })
+      .populate("headOfDepartment", "firstName lastName email")
+      .lean();
 
     if (!department) {
       throw new ApiError(404, "Department not found");
@@ -63,6 +69,8 @@ export class DepartmentService {
 
   // Update Department
   static async updateDepartment(id, data) {
+    validateObjectId(id, "department id");
+
     const department = await Department.findOne({
       _id: id,
       isActive: true,
@@ -73,18 +81,30 @@ export class DepartmentService {
     }
 
     if (data.name) {
+      const nameLower = data.name.toLowerCase();
+
       const exists = await Department.findOne({
         _id: { $ne: id },
-        name: new RegExp(`^${data.name}$`, "i"),
+        nameLower: nameLower,
       });
 
       if (exists) {
         throw new ApiError(409, "Department name already exists");
       }
+
+      data.nameLower = nameLower;
     }
 
     Object.assign(department, data);
-    const updated = await department.save();
+    let updated;
+    try {
+      updated = await department.save();
+    } catch (err) {
+      if (err.code === 11000) {
+        throw new ApiError(409, "Department name already exists");
+      }
+      throw err;
+    }
 
     await redis.del("departments:list");
     await redis.del(`departments:${id}`);
@@ -94,6 +114,8 @@ export class DepartmentService {
 
   // Soft Delete Department
   static async deleteDepartment(id) {
+    validateObjectId(id, "department id");
+
     const department = await Department.findOne({
       _id: id,
       isActive: true,
@@ -114,26 +136,54 @@ export class DepartmentService {
 
   // Assign Head of Department
   static async assignHOD(departmentId, instructorId) {
-    const department = await Department.findOne({
-      _id: departmentId,
-      isActive: true,
-    });
+    validateObjectId(departmentId, "department id");
+    validateObjectId(instructorId, "instructor id");
 
-    if (!department) {
-      throw new ApiError(404, "Department not found");
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const department = await Department.findOne({
+        _id: departmentId,
+        isActive: true,
+      }).session(session);
+
+      if (!department) {
+        throw new ApiError(404, "Department not found");
+      }
+
+      const instructor = await Instructor.findById(instructorId).session(
+        session
+      );
+      if (!instructor) {
+        throw new ApiError(404, "Instructor not found");
+      }
+
+      department.headOfDepartment = instructorId;
+      await department.save({ session });
+
+      // await Instructor.findByIdAndUpdate(
+      //   instructorId,
+      //   { role: "HOD" },
+      //   { session }
+      // );
+
+      // await AuditLog.create(
+      //   [{ action: "HOD_ASSIGNED", entityId: departmentId }],
+      //   { session }
+      // );
+
+      await session.commitTransaction();
+      session.endSession();
+
+      await redis.del("departments:list");
+      await redis.del(`departments:${departmentId}`);
+
+      return department;
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
     }
-
-    const instructor = await Instructor.findById(instructorId);
-    if (!instructor) {
-      throw new ApiError(404, "Instructor not found");
-    }
-
-    department.headOfDepartment = instructorId;
-    await department.save();
-
-    await redis.del("departments:list");
-    await redis.del(`departments:${departmentId}`);
-
-    return department;
   }
 }

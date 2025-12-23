@@ -45,25 +45,32 @@ export class AuthService {
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken({ userId: user._id });
 
-    await redis.set(
-      `refresh:${user._id}`,
-      refreshToken,
-      "EX",
-      7 * 24 * 60 * 60
-    );
+    const tokenId = crypto.randomUUID();
 
-    return { accessToken, refreshToken, role: user.role };
+    const redisKey = `refresh:${user._id}:${tokenId}`;
+
+    await redis.set(redisKey, refreshToken, "EX", 7 * 24 * 60 * 60);
+
+    return { accessToken, refreshToken, tokenId, role: user.role };
   }
 
   //refresh token verify and accesstoken generate
-  static async refreshToken(oldRefreshToken) {
-    const decoded = verifyRefreshToken(oldRefreshToken);
+  static async refreshToken(oldRefreshToken, tokenId) {
+    let decoded;
+    try {
+      decoded = verifyRefreshToken(oldRefreshToken);
+    } catch {
+      throw new ApiError(401, "Invalid refresh token");
+    }
 
-    const key = `refresh:${decoded.userId}`;
+    const key = `refresh:${decoded.userId}:${tokenId}`;
     const storedToken = await redis.get(key);
 
     if (!storedToken || storedToken !== oldRefreshToken) {
-      await redis.del(key);
+      const keys = await redis.keys(`refresh:${decoded.userId}:*`);
+      if (keys.length > 0) {
+        await redis.del(keys);
+      }
       throw new ApiError(401, "Refresh token reuse detected");
     }
 
@@ -89,7 +96,8 @@ export class AuthService {
 
   // logout
   static async logout(userId) {
-    await redis.del(`refresh:${userId}`);
+    const redisKey = `refresh:${userId}:${tokenId}`;
+    await redis.del(redisKey);
   }
 
   //change Password
@@ -98,7 +106,7 @@ export class AuthService {
     if (!user) throw new ApiError(404, "User not found");
 
     const match = await user.isPasswordCorrect(oldPassword);
-    if (!match) throw new ApiError(400, "User not found");
+    if (!match) throw new ApiError(400, "Old password is incorrect");
 
     user.password = newPassword;
     await user.save();
