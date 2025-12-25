@@ -3,7 +3,7 @@ import { ROLES } from "../../constants/roles.js";
 import { Student } from "../../models/Student.model.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { User } from "../../models/User.model.js";
-import { STUDENT_STATUS } from "../../constants/status.js";
+import { STATUS_TRANSITIONS, STUDENT_STATUS } from "../../constants/status.js";
 import { Enrollment } from "../../models/Enrollment.model.js";
 import { Payment } from "../../models/Payment.model.js";
 import { Attendance } from "../../models/Attendance.model.js";
@@ -81,7 +81,6 @@ export class StudentService {
 
   // Get student by ID
   static async getStudentById(id) {
-    
     validateObjectId(id, "student id");
 
     const cachedKey = `students:detail:${id}`;
@@ -94,6 +93,7 @@ export class StudentService {
     const student = await Student.findById(id)
       .populate("department", "name")
       .lean();
+
     if (!student) {
       throw new ApiError(404, "Student not found");
     }
@@ -105,7 +105,6 @@ export class StudentService {
 
   // Update student and corresponding user email if changed
   static async updateStudent(id, data) {
-
     validateObjectId(id, "student id");
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -117,7 +116,9 @@ export class StudentService {
       }
 
       if (data.email && data.email !== student.email) {
-        const emailExists = await User.findOne({ email: data.email }).session(session);
+        const emailExists = await User.findOne({ email: data.email }).session(
+          session
+        );
         if (emailExists) {
           throw new ApiError(409, "Email already in use");
         }
@@ -151,7 +152,6 @@ export class StudentService {
 
   // Soft delete student and corresponding user
   static async softDeleteStudent(id) {
-
     validateObjectId(id, "student id");
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -190,6 +190,9 @@ export class StudentService {
 
   // Change student status
   static async changeStatus(id, status) {
+    if (typeof status !== "string") {
+      throw new ApiError(400, "Status must be a string");
+    }
     status = status.toLowerCase();
     validateObjectId(id, "student id");
     const session = await mongoose.startSession();
@@ -203,6 +206,13 @@ export class StudentService {
 
       if (!Object.values(STUDENT_STATUS).includes(status)) {
         throw new ApiError(400, "Invalid status value");
+      }
+
+      if (!STATUS_TRANSITIONS[student.status]?.includes(status)) {
+        throw new ApiError(
+          400,
+          `Cannot change status from ${student.status} to ${status}`
+        );
       }
 
       student.status = status;

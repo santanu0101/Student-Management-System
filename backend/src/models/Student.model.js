@@ -1,4 +1,6 @@
 import mongoose, { Schema } from "mongoose";
+import { STUDENT_STATUS } from "../constants/status.js";
+import { GENDER } from "../constants/enums.js";
 
 const studentSchema = new mongoose.Schema(
   {
@@ -30,7 +32,7 @@ const studentSchema = new mongoose.Schema(
 
     gender: {
       type: String,
-      enum: ["Male", "Female", "Other"],
+      enum: [GENDER.MALE, GENDER.FEMALE, GENDER.OTHER],
     },
 
     address: { type: String },
@@ -48,7 +50,7 @@ const studentSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["active", "graduated", "suspended"],
+      enum: [STUDENT_STATUS.ACTIVE, STUDENT_STATUS.GRADUATED, STUDENT_STATUS.SUSPENDED],
       default: "active",
       index: true,
     },
