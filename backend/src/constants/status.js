@@ -1,4 +1,4 @@
-export const STUDENT_STATUS = Objrect.freeze({
+export const STUDENT_STATUS = Object.freeze({
   ACTIVE: "active",
   GRADUATED: "graduated",
   SUSPENDED: "suspended",

@@ -19,7 +19,7 @@ export class AuthController {
 
   //refresh
   static async refresh(req, res) {
-    const data = await AuthService.refreshToken(req.body.refreshToken);
+    const data = await AuthService.refreshToken(req.body.refreshToken, req.body.tokenId);
     res.status(200).json(new ApiResponse(200, data, "Token refreshed"));
   }
 

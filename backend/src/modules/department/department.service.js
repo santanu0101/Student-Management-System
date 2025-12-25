@@ -6,16 +6,27 @@ import { validateObjectId } from "../../utils/validateObjectId.js";
 export class DepartmentService {
   // Create Department
   static async createDepartment(data) {
-    if (data.name) {
-      const exists = await Department.findOne({
-        nameLower: data.name.toLowerCase(),
-      });
+    const nameLower = data.name.toLowerCase();
 
-      if (exists) {
-        throw new ApiError(409, "Department already exists");
-      }
+    const existing = await Department.findOne({ nameLower });
+
+    if (existing && existing.isActive) {
+      throw new ApiError(409, "Department already exists");
     }
-    const department = await Department.create(data);
+
+    if (existing && !existing.isActive) {
+      existing.isActive = true;
+      existing.building = data.building ?? existing.building;
+      await existing.save();
+
+      await redis.del("departments:list");
+      return existing;
+    }
+
+    const department = await Department.create({
+      ...data,
+      nameLower,
+    });
 
     await redis.del("departments:list");
 

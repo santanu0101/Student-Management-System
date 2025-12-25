@@ -34,11 +34,10 @@ const departmentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-departmentSchema.pre("save", function (next) {
+departmentSchema.pre("save", function () {
   if (this.name) {
     this.nameLower = this.name.toLowerCase();
   }
-  next();
 });
 
 export const Department = mongoose.model("Department", departmentSchema);

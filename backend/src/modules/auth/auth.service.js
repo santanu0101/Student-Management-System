@@ -63,6 +63,10 @@ export class AuthService {
       throw new ApiError(401, "Invalid refresh token");
     }
 
+    if (!tokenId) {
+      throw new ApiError(400, "Token ID is required");
+    }
+
     const key = `refresh:${decoded.userId}:${tokenId}`;
     const storedToken = await redis.get(key);
 

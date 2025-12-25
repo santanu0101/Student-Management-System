@@ -38,7 +38,7 @@ const router = Router();
  *                 example: admin@college.com
  *               password:
  *                 type: string
- *                 example: Admin@123
+ *                 example: Admin@1234
  *     responses:
  *       200:
  *         description: Login successful
@@ -68,6 +68,8 @@ router.post(
  *             properties:
  *               refreshToken:
  *                 type: string
+ *               tokenId:
+ *                type: string
  *     responses:
  *       200:
  *         description: Token refreshed successfully

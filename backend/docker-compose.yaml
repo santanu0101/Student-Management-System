@@ -1,6 +1,15 @@
 version: "3.9"
 
 services:
+  mongo:
+    image: mongo:7
+    container_name: student_mgmt_mongo
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
   redis:
     image: redis:7-alpine
     container_name: student_mgmt_redis
@@ -11,4 +20,5 @@ services:
       - redis_data:/data
 
 volumes:
+  mongo_data:
   redis_data:

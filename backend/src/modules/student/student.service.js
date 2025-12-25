@@ -24,11 +24,11 @@ export class StudentService {
         throw new ApiError(409, "Student with this email already exists");
       }
       const student = await Student.create([data], { session });
-      await UserActivation.create(
+      await User.create(
         [
           {
             email: data.email,
-            password: data.password,
+            password: "Student@123",
             role: ROLES.STUDENT,
             student: student[0]._id,
           },
@@ -56,7 +56,7 @@ export class StudentService {
     const filter = { isActive: true };
 
     if (query.status) {
-      filter.status = query.status;
+      filter.status = query.status.toLowerCase();
     }
     if (query.department) {
       filter.department = query.department;
@@ -190,6 +190,7 @@ export class StudentService {
 
   // Change student status
   static async changeStatus(id, status) {
+    status = status.toLowerCase();
     validateObjectId(id, "student id");
     const session = await mongoose.startSession();
     session.startTransaction();

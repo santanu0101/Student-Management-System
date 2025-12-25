@@ -16,6 +16,35 @@ export const swaggerSpec = swaggerJsdoc({
     ],
 
     components: {
+      // schemas: {
+      //   CreateStudent: {
+      //     type: "object",
+      //     required: ["name", "email", "department"],
+      //     properties: {
+      //       name: { type: "string" },
+      //       email: { type: "string" },
+      //       department: { type: "string" },
+      //     },
+      //   },
+      //   UpdateStudent: {
+      //     type: "object",
+      //     properties: {
+      //       name: { type: "string" },
+      //       email: { type: "string" },
+      //       department: { type: "string" },
+      //     },
+      //   },
+      //   UpdateStudentStatus: {
+      //     type: "object",
+      //     required: ["status"],
+      //     properties: {
+      //       status: {
+      //         type: "string",
+      //         enum: ["ACTIVE", "SUSPENDED", "GRADUATED"],
+      //       },
+      //     },
+      //   },
+      // },
       securitySchemes: {
         BearerAuth: {
           type: "http",
