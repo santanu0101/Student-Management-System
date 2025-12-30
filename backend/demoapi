@@ -45,20 +45,20 @@ POST	       /instructors	            Create instructor       done
 GET	           /instructors	            Get all instructors     done
 GET	           /instructors/:id	        Get instructor          done
 PATCH	       /instructors/:id	        Update instructor       done
-PATCH          /instructors/:id/status  Activate / Deactivate   
-DELETE	       /instructors/:id	        Remove instructor
-GET	           /instructors/:id/courses	Courses taught
+PATCH          /instructors/:id/status  Activate / Deactivate   done
+DELETE	       /instructors/:id	        Remove instructor       done
+GET	           /instructors/:id/courses	Courses taught          done
 
 
 📘 5. Course APIs
 Method	        Endpoint	            Description
-POST	        /courses	            Create course
-GET	            /courses	            Get all courses
-GET	            /courses/:id	        Get course details
-PATCH	        /courses/:id	        Update course
-DELETE	        /courses/:id	        Delete course
-PATCH	        /courses/:id/instructor	Assign instructor
-GET	            /courses/:id/students	Enrolled students
+POST	        /courses	            Create course           done
+GET	            /courses	            Get all courses         done
+GET	            /courses/:id	        Get course details      done
+PATCH	        /courses/:id	        Update course           done
+DELETE	        /courses/:id	        Delete course           done
+PATCH	        /courses/:id/instructor	Assign instructor       done
+GET	            /courses/:id/students	Enrolled students       done
 
 
 🧾 6. Enrollment APIs (Many-to-Many)

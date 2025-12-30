@@ -43,5 +43,6 @@ const courseSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+courseSchema.index({ code: 1 }, { unique: true });
 
 export const Course = mongoose.model("Course", courseSchema);
