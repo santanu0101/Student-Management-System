@@ -3,7 +3,7 @@ import { ROLES } from "../../constants/roles.js";
 import { Student } from "../../models/Student.model.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { User } from "../../models/User.model.js";
-import { STATUS_TRANSITIONS, STUDENT_STATUS } from "../../constants/status.js";
+import { STUDENT_STATUS, STUDENT_STATUS_TRANSITIONS } from "../../constants/status.js";
 import { Enrollment } from "../../models/Enrollment.model.js";
 import { Payment } from "../../models/Payment.model.js";
 import { Attendance } from "../../models/Attendance.model.js";
@@ -208,7 +208,7 @@ export class StudentService {
         throw new ApiError(400, "Invalid status value");
       }
 
-      if (!STATUS_TRANSITIONS[student.status]?.includes(status)) {
+      if (!STUDENT_STATUS_TRANSITIONS[student.status]?.includes(status)) {
         throw new ApiError(
           400,
           `Cannot change status from ${student.status} to ${status}`

@@ -9,43 +9,43 @@ Base URL
 Purpose: Login, role-based access
 
 Method	Endpoint	                Description
-POST	/auth/login	            Login user
-POST    /auth/refresh           Refresh access token
-GET	    /auth/me	            Get logged-in user profile
-POST	/auth/logout	        Logout
-PATCH	/auth/change-password	Change password
+POST	/auth/login	            Login user          done
+POST    /auth/refresh           Refresh access token    done
+GET	    /auth/me	            Get logged-in user profile      done
+POST	/auth/logout	        Logout                  done
+PATCH	/auth/change-password	Change password         done
 
 
 🏢 2. Department APIs
 Method	    Endpoint	                Description
-POST	/departments	        Create department
-GET	    /departments	        Get all departments
-GET	    /departments/:id	    Get department by ID
-PATCH	/departments/:id	    Update department
-DELETE	/departments/:id	    Delete department
-PATCH	/departments/:id/hod	Assign Head of Department
+POST	/departments	        Create department       done
+GET	    /departments	        Get all departments     done
+GET	    /departments/:id	    Get department by ID    done
+PATCH	/departments/:id	    Update department       done
+DELETE	/departments/:id	    Delete department       done
+PATCH	/departments/:id/hod	Assign Head of Department   done
 
 
 🎓 3. Student APIs
 Method	        Endpoint	            Description
-POST	        /students	            Create student
-GET	            /students	            Get all students (filter by status, department)
-GET	            /students/:id	        Get student details
-PATCH	        /students/:id	        Update student
-DELETE	        /students/:id	        Soft delete / suspend student
-PATCH	        /students/:id/status	Change status (active, graduated, suspended)
-GET	            /students/:id/courses	Student enrolled courses
-GET	            /students/:id/payments	Student payment history
-GET	            /students/:id/attendance	Student attendance
+POST	        /students	            Create student      done
+GET	            /students	            Get all students (filter by status, department)     done
+GET	            /students/:id	        Get student details     done
+PATCH	        /students/:id	        Update student          done
+DELETE	        /students/:id	        Soft delete / suspend student       done
+PATCH	        /students/:id/status	Change status (active, graduated, suspended)    done
+GET	            /students/:id/courses	Student enrolled courses        done
+GET	            /students/:id/payments	Student payment history         done
+GET	            /students/:id/attendance	Student attendance          done
 
 
 👨‍🏫 4. Instructor APIs
 Method	        Endpoint	            Description
-POST	       /instructors	            Create instructor
-GET	           /instructors	            Get all instructors
-GET	           /instructors/:id	        Get instructor
-PATCH	       /instructors/:id	        Update instructor
-PATCH          /instructors/:id/status  Activate / Deactivate
+POST	       /instructors	            Create instructor       done
+GET	           /instructors	            Get all instructors     done
+GET	           /instructors/:id	        Get instructor          done
+PATCH	       /instructors/:id	        Update instructor       done
+PATCH          /instructors/:id/status  Activate / Deactivate   
 DELETE	       /instructors/:id	        Remove instructor
 GET	           /instructors/:id/courses	Courses taught
 
