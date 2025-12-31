@@ -1,7 +1,5 @@
 import redis from "../../config/redis.js";
-import { Course } from "../../models/Course.model.js";
-import { Enrollment } from "../../models/Enrollment.model.js";
-import { Instructor } from "../../models/Instructor.model.js";
+import { Enrollment, Instructor, Course } from "../../models";
 import { ApiError } from "../../utils/ApiError.js";
 import { safeRedis } from "../../utils/redisTryCatch.js";
 import { validateObjectId } from "../../utils/validateObjectId.js";
