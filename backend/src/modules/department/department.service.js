@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import redis from "../../config/redis.js";
 import { Department, Instructor } from "../../models/index.js";
 import { ApiError } from "../../utils/ApiError.js";
@@ -170,6 +171,13 @@ export class DepartmentService {
         throw new ApiError(404, "Instructor not found");
       }
 
+      if (
+        instructor.department &&
+        instructor.department.toString() !== departmentId
+      ) {
+        throw new ApiError(400, "Instructor belongs to another department");
+      }
+
       department.headOfDepartment = instructorId;
       await department.save({ session });
 
@@ -197,4 +205,5 @@ export class DepartmentService {
       throw error;
     }
   }
+
 }

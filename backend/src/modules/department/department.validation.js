@@ -18,5 +18,7 @@ export const updateDepartmentSchema = z.object({
 export const assignHodSchema = z.object({
   body: z.object({
     instructorId: z.string().min(1, "Instructor ID required"),
+    departmentId: z.string().min(1, "Department ID required"),
   }),
 });
+

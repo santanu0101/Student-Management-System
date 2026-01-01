@@ -193,11 +193,12 @@ router.delete(
  */
 
 router.patch(
-  "/:id/hod",
+  "/:departmentId/hod",
   authMiddleware,
   authorize("admin"),
   validate(assignHodSchema),
   asyncHandler(DepartmentController.assignHOD)
 );
+
 
 export default router;
