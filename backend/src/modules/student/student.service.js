@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 import { ROLES } from "../../constants/roles.js";
-import { Student } from "../../models/Student.model.js";
 import { ApiError } from "../../utils/ApiError.js";
-import { User } from "../../models/User.model.js";
-import { STUDENT_STATUS, STUDENT_STATUS_TRANSITIONS } from "../../constants/status.js";
-import { Enrollment } from "../../models/Enrollment.model.js";
-import { Payment } from "../../models/Payment.model.js";
-import { Attendance } from "../../models/Attendance.model.js";
+import {
+  ENROLLMENT_STATUS,
+  STUDENT_STATUS,
+  STUDENT_STATUS_TRANSITIONS,
+} from "../../constants/status.js";
+import { Enrollment, Payment, Attendance, User, Student } from "../../models/index.js";
 import redis from "../../config/redis.js";
 import { STATUS_USER_ACCESS } from "../../rules/student.rule.js";
 import { validateObjectId } from "../../utils/validateObjectId.js";
@@ -251,7 +251,15 @@ export class StudentService {
       return JSON.parse(cached);
     }
 
-    const courses = await Enrollment.find({ student: studentId })
+    const studentExists = await Student.exists({ _id: studentId });
+    if (!studentExists) {
+      throw new ApiError(404, "Student not found");
+    }
+
+    const courses = await Enrollment.find({
+      student: studentId,
+      status: ENROLLMENT_STATUS.ENROLLED,
+    })
       .populate("course", "name code description semester")
       .lean();
     if (!courses) {

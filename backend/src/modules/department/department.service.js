@@ -3,6 +3,7 @@ import redis from "../../config/redis.js";
 import { Department, Instructor } from "../../models/index.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { validateObjectId } from "../../utils/validateObjectId.js";
+import { safeRedis } from "../../utils/redisTryCatch.js";
 
 export class DepartmentService {
   // Create Department
@@ -20,7 +21,7 @@ export class DepartmentService {
       existing.building = data.building ?? existing.building;
       await existing.save();
 
-      await redis.del("departments:list");
+      await safeRedis(() =>redis.del("departments:list"));
       return existing;
     }
 
@@ -29,7 +30,7 @@ export class DepartmentService {
       nameLower,
     });
 
-    await redis.del("departments:list");
+    await safeRedis(() =>redis.del("departments:list"));
 
     return department;
   }
@@ -38,7 +39,10 @@ export class DepartmentService {
   static async getAllDepartments() {
     const cacheKey = "departments:list";
 
-    const cached = await redis.get(cacheKey);
+    let cached = null;
+    await safeRedis(async () => {
+      cached = await redis.get(cacheKey);
+    });
     if (cached) {
       return JSON.parse(cached);
     }
@@ -48,7 +52,7 @@ export class DepartmentService {
       .sort({ createdAt: -1 })
       .lean();
 
-    await redis.setex(cacheKey, 300, JSON.stringify(departments));
+    await safeRedis(() => redis.setex(cacheKey, 300, JSON.stringify(departments)));
 
     return departments;
   }
@@ -58,7 +62,10 @@ export class DepartmentService {
     validateObjectId(id, "department id");
     const cacheKey = `departments:${id}`;
 
-    const cached = await redis.get(cacheKey);
+    let cached = null;
+    await safeRedis(async () => {
+      cached = await redis.get(cacheKey);
+    });
     if (cached) {
       return JSON.parse(cached);
     }
@@ -74,7 +81,7 @@ export class DepartmentService {
       throw new ApiError(404, "Department not found");
     }
 
-    await redis.setex(cacheKey, 300, JSON.stringify(department));
+    await safeRedis(() =>redis.setex(cacheKey, 300, JSON.stringify(department)));
 
     return department;
   }
@@ -118,8 +125,8 @@ export class DepartmentService {
       throw err;
     }
 
-    await redis.del("departments:list");
-    await redis.del(`departments:${id}`);
+    await safeRedis(() => redis.del("departments:list"));
+    await safeRedis(() => redis.del(`departments:${id}`));
 
     return updated;
   }
@@ -140,8 +147,8 @@ export class DepartmentService {
     department.isActive = false;
     await department.save();
 
-    await redis.del("departments:list");
-    await redis.del(`departments:${id}`);
+    await safeRedis(() =>redis.del("departments:list"));
+    await safeRedis(() =>redis.del(`departments:${id}`));
 
     return department;
   }
@@ -195,8 +202,8 @@ export class DepartmentService {
       await session.commitTransaction();
       session.endSession();
 
-      await redis.del("departments:list");
-      await redis.del(`departments:${departmentId}`);
+      await safeRedis(() => redis.del("departments:list"));
+      await safeRedis(() => redis.del(`departments:${departmentId}`));
 
       return department;
     } catch (error) {

@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { ENROLLMENT_STATUS } from "../constants/status.js";
 
 const enrollmentSchema = new Schema(
   {
@@ -21,8 +22,8 @@ const enrollmentSchema = new Schema(
 
     status: {
       type: String,
-      enum: ["enrolled", "dropped", "completed"],
-      default: "enrolled",
+      enum: Object.values(ENROLLMENT_STATUS),
+      default: ENROLLMENT_STATUS.PENDING_PAYMENT,
     },
   },
 

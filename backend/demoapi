@@ -63,12 +63,12 @@ GET	            /courses/:id/students	Enrolled students       done
 
 🧾 6. Enrollment APIs (Many-to-Many)
 Method	    Endpoint	                    Description
-POST	    /enrollments	                Enroll student to course
-GET	        /enrollments	                All enrollments
-GET	        /enrollments/student/:studentId	Student enrollments
-GET	        /enrollments/course/:courseId	Course enrollments
-PATCH	    /enrollments/:id/status	        Drop / complete
-DELETE	    /enrollments/:id	            Remove enrollment
+POST	    /enrollments	                Enroll student to course    done
+GET	        /enrollments	                All enrollments             done
+GET	        /enrollments/student/:studentId	Student enrollments         done
+GET	        /enrollments/course/:courseId	Course enrollments          done
+PATCH	    /enrollments/:id/status	        Drop / complete             done
+DELETE	    /enrollments/:id	            Remove enrollment           ??
 
 
 💰 7. Payment APIs

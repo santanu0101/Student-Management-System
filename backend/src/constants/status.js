@@ -23,6 +23,7 @@ export const INSTRUCTOR_STATUS_TRANSITIONS = Object.freeze({
 });
 
 export const ENROLLMENT_STATUS = Object.freeze({
+  PENDING_PAYMENT: "pending_payment",
   ENROLLED: "enrolled",
   DROPPED: "dropped",
   COMPLETED: "completed",

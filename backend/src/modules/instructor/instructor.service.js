@@ -5,7 +5,7 @@ import {
   INSTRUCTOR_STATUS,
   INSTRUCTOR_STATUS_TRANSITIONS,
 } from "../../constants/status.js";
-import { Course, Instructor, User } from "../../models";
+import { Course, Instructor, User } from "../../models/index.js";
 import { STATUS_USER_ACCESS } from "../../rules/instructor.rule.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { validateObjectId } from "../../utils/validateObjectId.js";

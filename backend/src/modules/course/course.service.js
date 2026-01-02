@@ -1,21 +1,35 @@
 import redis from "../../config/redis.js";
-import { Enrollment, Instructor, Course } from "../../models";
+import { ENROLLMENT_STATUS } from "../../constants/status.js";
+import { Enrollment, Instructor, Course } from "../../models/index.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { safeRedis } from "../../utils/redisTryCatch.js";
 import { validateObjectId } from "../../utils/validateObjectId.js";
 
 export class CourseService {
   static async createCourse(payload) {
+    payload.code = payload.code.toUpperCase();
+
     const exists = await Course.findOne({ code: payload.code });
-    if (exists) {
+    if (exists && exists.isActive) {
       throw new ApiError(400, "Course with this code already exists");
     }
-    const course = await Course.create(payload);
+
+    if (exists && !exists.isActive) {
+      Object.assign(exists, payload, { isActive: true });
+      await exists.save();
+
+      await safeRedis(() => redis.del("courses:list"));
+      await safeRedis(() => redis.del(`courses:detail:${exists._id}`));
+
+      return exists;
+    }
+    const course = await Course.create({ ...payload, isActive: true });
 
     await safeRedis(() => redis.del("courses:list"));
 
     return course;
   }
+
   static async getAllCourses() {
     const cacheKey = "courses:list";
     let cached = null;
@@ -25,7 +39,7 @@ export class CourseService {
     if (cached) {
       return JSON.parse(cached);
     }
-    const courses = await Course.find()
+    const courses = await Course.find({ isActive: true })
       .populate("department", "name")
       .populate("instructor", "firstName lastName email")
       .sort({ createdAt: -1 })
@@ -47,7 +61,7 @@ export class CourseService {
       return JSON.parse(cached);
     }
 
-    const course = await Course.findById(id)
+    const course = await Course.findOne({ _id: id, isActive: true })
       .populate("department", "name")
       .populate("instructor", "firstName lastName email")
       .lean();
@@ -63,15 +77,17 @@ export class CourseService {
     validateObjectId(id, "course id");
 
     if (payload.code) {
+      payload.code = payload.code.toUpperCase();
       const exists = await Course.findOne({
         code: payload.code,
         _id: { $ne: id },
       }); // Exclude current course
+
       if (exists) {
         throw new ApiError(400, "Course with this code already exists");
       }
     }
-    const course = await Course.findById(id);
+    const course = await Course.findOne({ _id: id, isActive: true });
     if (!course) {
       throw new ApiError(404, "Course not found");
     }
@@ -88,15 +104,26 @@ export class CourseService {
   static async deleteCourse(id) {
     validateObjectId(id, "course id");
 
-    const hasEnrollments = await Enrollment.exists({ course: id });
+    const hasEnrollments = await Enrollment.exists({
+      course: id,
+      status: ENROLLMENT_STATUS.ENROLLED,
+    });
     if (hasEnrollments) {
       throw new ApiError(400, "Cannot delete course with enrolled students");
     }
 
-    const course = await Course.findByIdAndDelete(id);
+    const course = await Course.findOne({
+      _id: id,
+      isActive: true,
+    });
+
     if (!course) {
       throw new ApiError(404, "Course not found");
     }
+
+    course.isActive = false;
+    await course.save();
+
     await safeRedis(() => redis.del(`courses:detail:${id}`));
     await safeRedis(() => redis.del("courses:list"));
 
@@ -111,7 +138,7 @@ export class CourseService {
     if (!instructor) {
       throw new ApiError(404, "Instructor not found");
     }
-    const course = await Course.findById(courseId);
+    const course = await Course.findOne({ _id: id, isActive: true });
     if (!course) {
       throw new ApiError(404, "Course not found");
     }
@@ -132,7 +159,10 @@ export class CourseService {
   static async getEnrolledStudents(courseId) {
     validateObjectId(courseId, "course id");
 
-    const enrollments = await Enrollment.find({ course: courseId })
+    const enrollments = await Enrollment.find({
+      course: courseId,
+      status: ENROLLMENT_STATUS.ENROLLED,
+    })
       .populate("student", "firstName lastName email")
       .lean();
 

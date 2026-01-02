@@ -13,10 +13,11 @@ const courseSchema = new mongoose.Schema(
       required: true,
       unique: true,
       uppercase: true,
+      index: true,
     },
 
-    description: { type: String },
-    
+    description: String,
+
     credits: {
       type: Number,
       required: true,
@@ -26,6 +27,18 @@ const courseSchema = new mongoose.Schema(
     semester: {
       type: String,
       required: true,
+    },
+
+    price: {                    
+      type: Number,
+      required: true,
+      min: 0,
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
     },
 
     department: {
@@ -43,6 +56,8 @@ const courseSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-courseSchema.index({ code: 1 }, { unique: true });
+// Helpful indexes
+courseSchema.index({ department: 1, isActive: 1 });
+courseSchema.index({ instructor: 1 });
 
 export const Course = mongoose.model("Course", courseSchema);
