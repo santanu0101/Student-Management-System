@@ -8,22 +8,20 @@ const paymentSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Student",
       required: true,
+      index: true,
     },
 
     course: {
       type: Schema.Types.ObjectId,
       ref: "Course",
       required: true,
+      index: true,
     },
 
     amount: {
       type: Number,
       required: true,
-    },
-
-    paymentDate: {
-      type: Date,
-      default: Date.now,
+      min: 0,
     },
 
     method: {
@@ -32,12 +30,32 @@ const paymentSchema = new Schema(
       required: true,
     },
 
-    description: { type: String },
+    description: {
+      type: String,
+    },
+
+    razorpayOrderId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+
+    razorpayPaymentId: {
+      type: String,
+      default: null,
+      index: true,
+    },
+
+    razorpaySignature: {
+      type: String,
+      default: null,
+    },
 
     status: {
       type: String,
       enum: Object.values(PAYMENT_STATUS),
       default: PAYMENT_STATUS.PENDING,
+      index: true,
     },
 
     enrollment: {
@@ -49,7 +67,15 @@ const paymentSchema = new Schema(
   { timestamps: true }
 );
 
-paymentSchema.index({ student: 1, course: 1 });
+
+paymentSchema.index(
+  { student: 1, course: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { status: PAYMENT_STATUS.PAID },
+  }
+);
+
 paymentSchema.index({ createdAt: -1 });
 
 export const Payment = mongoose.model("Payment", paymentSchema);

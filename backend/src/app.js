@@ -1,7 +1,7 @@
 import express from "express";
 import swaggerUi from "swagger-ui-express";
 
-import userRoutes from "./routes/index.js"
+import userRoutes from "./routes/index.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import { swaggerSpec } from "./config/swagger.js";
 
@@ -20,10 +20,10 @@ class App {
   routes() {
     this.app.use("/api/v1", userRoutes);
     this.app.use(
-      "/api-docs",
-      swaggerUi.serve,
-      swaggerUi.setup(swaggerSpec)
+      "/api/v1/payments/webhook",
+      express.raw({ type: "application/json" })
     );
+    this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   }
 
   errorHandler() {
