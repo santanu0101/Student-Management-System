@@ -76,10 +76,7 @@ router.post(
  *       400:
  *         description: Invalid payment signature
  */
-router.post(
-  "/verify",
-  asyncHandler(PaymentController.verifyPayment)
-);
+router.post("/verify", asyncHandler(PaymentController.verifyPayment));
 
 /**
  * @swagger
@@ -213,9 +210,71 @@ router.delete(
   asyncHandler(PaymentController.deletePayment)
 );
 
-router.post(
-  "/webhook",
-  asyncHandler(PaymentController.razorpayWebhook)
-);
+/**
+ * @swagger
+ * /payments/retry/{paymentId}:
+ *   post:
+ *     summary: Retry a failed or expired payment
+ *     tags: [Payments]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: paymentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the payment to retry
+ *     responses:
+ *       200:
+ *         description: New payment created for retry
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     payment:
+ *                       type: object
+ *                       description: Newly created payment document
+ *                     razorpayOrder:
+ *                       type: object
+ *                       description: Razorpay order details for retry
+ *       400:
+ *         description: Payment cannot be retried
+ *       404:
+ *         description: Payment not found
+ *       409:
+ *         description: Course already paid
+ */
+router.post("/retry/:paymentId", PaymentController.retryPayment);
+
+
+/**
+ * @swagger
+ * /payments/webhook:
+ *   post:
+ *     summary: Handle Razorpay webhook for payment events
+ *     tags: [Payments]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             description: Raw webhook payload from Razorpay
+ *     responses:
+ *       200:
+ *         description: Webhook processed successfully
+ *       400:
+ *         description: Invalid signature or missing data
+ */
+router.post("/webhook", asyncHandler(PaymentController.razorpayWebhook));
 
 export default router;

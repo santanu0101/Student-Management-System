@@ -73,12 +73,12 @@ DELETE	    /enrollments/:id	            Remove enrollment           ??
 
 💰 7. Payment APIs
 Method	    Endpoint	                    Description
-POST	    /payments	                    Add payment
-GET	        /payments	                    Get all payments
-GET	        /payments/:id	                Get payment
-GET	        /payments/student/:studentId	Student payments
-PATCH	    /payments/:id/status	        Update payment status
-DELETE	    /payments/:id	                Delete payment
+POST	    /payments	                    Add payment                     done
+GET	        /payments	                    Get all payments                done
+GET	        /payments/:id	                Get payment                     done
+GET	        /payments/student/:studentId	Student payments                done
+PATCH	    /payments/:id/status	        Update payment status           done
+DELETE	    /payments/:id	                Delete payment                  done
 
 
 🕒 8. Attendance APIs   

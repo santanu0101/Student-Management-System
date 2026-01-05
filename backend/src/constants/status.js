@@ -30,7 +30,10 @@ export const ENROLLMENT_STATUS = Object.freeze({
 });
 
 export const PAYMENT_STATUS = Object.freeze({
-  PAID: "paid",
   PENDING: "pending",
+  PROCESSING: "processing",
+  PAID: "paid",
   FAILED: "failed",
+  EXPIRED: "expired",
+  REFUNDED: "refunded",
 });

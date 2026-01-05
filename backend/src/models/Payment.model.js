@@ -67,12 +67,13 @@ const paymentSchema = new Schema(
   { timestamps: true }
 );
 
-
 paymentSchema.index(
   { student: 1, course: 1 },
   {
     unique: true,
-    partialFilterExpression: { status: PAYMENT_STATUS.PAID },
+    partialFilterExpression: {
+      status: { $in: [PAYMENT_STATUS.PENDING, PAYMENT_STATUS.PROCESSING] },
+    },
   }
 );
 

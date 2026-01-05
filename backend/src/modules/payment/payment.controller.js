@@ -33,6 +33,23 @@ export class PaymentController {
       );
   }
 
+  static async retryPayment(req, res, next) {
+    const { paymentId } = req.params;
+
+    const { payment, razorpayOrder } = await PaymentService.retryPayment(
+      paymentId
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Payment retry created successfully",
+      data: {
+        payment,
+        razorpayOrder,
+      },
+    });
+  }
+
   static async getPayments(req, res) {
     const payments = await PaymentService.getPayments();
 
