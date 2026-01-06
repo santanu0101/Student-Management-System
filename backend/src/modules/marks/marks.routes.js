@@ -97,7 +97,6 @@ router.get(
   "/",
   authMiddleware,
   authorize("admin", "instructor"),
-  validate(getAllMarksSchema),
   asyncHandler(MarksController.getAllMarks)
 );
 

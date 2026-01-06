@@ -7,10 +7,11 @@ export const validate = (schema) => (req, res, next) => {
 
   if (!result.success) {
     return res.status(400).json({
-      message: "Validation failed hello",
+      message: "Validation failed",
       errors: result.error.message,
     });
   }
+
 
   Object.assign(req, result.data);
   next();

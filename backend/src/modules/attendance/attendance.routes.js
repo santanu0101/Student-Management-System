@@ -95,7 +95,6 @@ router.get(
   "/",
   authMiddleware,
   authorize(ROLES.ADMIN, ROLES.INSTRUCTOR),
-  validate(getAttendanceSchema),
   asyncHandler(getAttendance)
 );
 
