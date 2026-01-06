@@ -15,6 +15,7 @@ import { ROLES } from "../../constants/roles.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import {
   deleteAttendanceSchema,
+  getAttendanceByCourseSchema,
   getAttendanceByStudentSchema,
   getAttendancePercentageSchema,
   getAttendanceSchema,

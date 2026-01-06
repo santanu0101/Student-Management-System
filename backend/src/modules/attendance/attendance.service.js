@@ -5,7 +5,7 @@ import {
   ENROLLMENT_STATUS,
   STUDENT_STATUS,
 } from "../../constants/status.js";
-import { Attendance, Enrollment, Student } from "../../models/index.js";
+import { Attendance, Course, Enrollment, Student } from "../../models/index.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { safeRedis } from "../../utils/redisTryCatch.js";
 import { validateObjectId } from "../../utils/validateObjectId.js";
@@ -44,7 +44,16 @@ export class AttendanceService {
         throw new ApiError(404, "Student not found");
       }
 
-      const enrolledCourse = await Enrollment.findOne(
+      const courseExists = await Course.findOne({
+        _id: courseId,
+        isActive: true,
+      });
+
+      if (!courseExists) {
+        throw new ApiError(404, "Course not found or inactive");
+      }
+
+      const enrolledCourse = await Enrollment.exists(
         {
           student: studentId,
           course: courseId,
@@ -173,7 +182,7 @@ export class AttendanceService {
       throw new ApiError(404, "Attendance not found");
     }
 
-    console.log(payload.status)
+    console.log(payload.status);
 
     if (payload.status) {
       if (!Object.values(ATTENDANCE_STATUS).includes(payload.status)) {
