@@ -49,10 +49,10 @@ export class CourseService {
     return courses;
   }
 
-  static async getCourseById(id) {
-    validateObjectId(id, "course id");
+  static async getCourseById(courseId) {
+    validateObjectId(courseId, "course id");
 
-    const cacheKey = `courses:detail:${id}`;
+    const cacheKey = `courses:detail:${courseId}`;
     let cached = null;
     await safeRedis(async () => {
       cached = await redis.get(cacheKey);
@@ -61,7 +61,7 @@ export class CourseService {
       return JSON.parse(cached);
     }
 
-    const course = await Course.findOne({ _id: id, isActive: true })
+    const course = await Course.findOne({ _id: courseId, isActive: true })
       .populate("department", "name")
       .populate("instructor", "firstName lastName email")
       .lean();
@@ -73,21 +73,21 @@ export class CourseService {
     return course;
   }
 
-  static async updateCourse(id, payload) {
-    validateObjectId(id, "course id");
+  static async updateCourse(courseId, payload) {
+    validateObjectId(courseId, "course id");
 
     if (payload.code) {
       payload.code = payload.code.toUpperCase();
       const exists = await Course.findOne({
         code: payload.code,
-        _id: { $ne: id },
+        _id: { $ne: courseId },
       }); // Exclude current course
 
       if (exists) {
         throw new ApiError(400, "Course with this code already exists");
       }
     }
-    const course = await Course.findOne({ _id: id, isActive: true });
+    const course = await Course.findOne({ _id: courseId, isActive: true });
     if (!course) {
       throw new ApiError(404, "Course not found");
     }
@@ -95,17 +95,17 @@ export class CourseService {
     Object.assign(course, payload);
     await course.save();
 
-    await safeRedis(() => redis.del(`courses:detail:${id}`));
+    await safeRedis(() => redis.del(`courses:detail:${courseId}`));
     await safeRedis(() => redis.del("courses:list"));
 
     return course;
   }
 
-  static async deleteCourse(id) {
-    validateObjectId(id, "course id");
+  static async deleteCourse(courseId) {
+    validateObjectId(courseId, "course id");
 
     const hasEnrollments = await Enrollment.exists({
-      course: id,
+      course: courseId,
       status: ENROLLMENT_STATUS.ENROLLED,
     });
     if (hasEnrollments) {
@@ -113,7 +113,7 @@ export class CourseService {
     }
 
     const course = await Course.findOne({
-      _id: id,
+      _id: courseId,
       isActive: true,
     });
 
@@ -124,7 +124,7 @@ export class CourseService {
     course.isActive = false;
     await course.save();
 
-    await safeRedis(() => redis.del(`courses:detail:${id}`));
+    await safeRedis(() => redis.del(`courses:detail:${courseId}`));
     await safeRedis(() => redis.del("courses:list"));
 
     return course;
@@ -134,7 +134,10 @@ export class CourseService {
     validateObjectId(courseId, "course id");
     validateObjectId(instructorId, "instructor id");
 
-    const instructor = await Instructor.findById(instructorId);
+    const instructor = await Instructor.findOne({
+      _id: instructorId,
+      isActive: true,
+    });
     if (!instructor) {
       throw new ApiError(404, "Instructor not found");
     }

@@ -10,6 +10,7 @@ export const createCourseSchema = z.object({
     code: z.string().min(3).toUpperCase(),
     description: z.string().optional(),
     credits: z.number().min(0),
+    price: z.number().min(1),
     semester: z.string(),
     department: objectId,
     instructor: objectId,
