@@ -29,6 +29,12 @@ export const ENROLLMENT_STATUS = Object.freeze({
   COMPLETED: "completed",
 });
 
+export const ATTENDANCE_STATUS = Object.freeze({
+  PRESENT: "present",
+  ABSENT: "absent",
+  LATE: "late",
+});
+
 export const PAYMENT_STATUS = Object.freeze({
   PENDING: "pending",
   PROCESSING: "processing",
