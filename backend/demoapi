@@ -83,22 +83,22 @@ DELETE	    /payments/:id	                Delete payment                  done
 
 🕒 8. Attendance APIs   
 Method	        Endpoint	                        Description
-POST	        /attendance	                        Mark attendance
-GET	            /attendance	                        All attendance
-GET	            /attendance/student/:studentId	    Student attendance
-GET	            /attendance/course/:courseId	    Course attendance
-PATCH	        /attendance/:id	                    Update attendance
-DELETE	        /attendance/:id	                    Delete attendance
+POST	        /attendance	                        Mark attendance         done
+GET	            /attendance	                        All attendance          done
+GET	            /attendance/student/:studentId	    Student attendance      done
+GET	            /attendance/course/:courseId	    Course attendance       done
+PATCH	        /attendance/:id	                    Update attendance       done
+DELETE	        /attendance/:id	                    Delete attendance       done
 
 
 📝 9. Marks / Assessment APIs
 Method	            Endpoint	                    Description
-POST	            /marks	                        Add marks
-GET	                /marks	                        Get all marks
-GET	                /marks/student/:studentId	    Student marks
-GET	                /marks/course/:courseId	        Course marks
-PATCH	            /marks/:id	                    Update marks
-DELETE	            /marks/:id	                    Delete marks
+POST	            /marks	                        Add marks               done      
+GET	                /marks	                        Get all marks           done
+GET	                /marks/student/:studentId	    Student marks           done
+GET	                /marks/course/:courseId	        Course marks            done
+PATCH	            /marks/:id	                    Update marks            done
+DELETE	            /marks/:id	                    Delete marks            done
 
 
 📅 10. Class Schedule APIs

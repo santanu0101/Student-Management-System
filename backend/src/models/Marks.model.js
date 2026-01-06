@@ -34,9 +34,10 @@ const marksSchema = new Schema(
       type: Date,
       required: true,
     },
-    
   },
   { timestamps: true }
 );
+
+marksSchema.index({ student: 1, course: 1, examType: 1 }, { unique: true });
 
 export const Marks = mongoose.model("Marks", marksSchema);
