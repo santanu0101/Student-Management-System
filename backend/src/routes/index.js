@@ -8,6 +8,7 @@ import enrollmentRoutes from "../modules/enrollment/enrollment.routes.js";
 import paymentRoutes from "../modules/payment/payment.routes.js";
 import attendanceRoutes from "../modules/attendance/attendance.routes.js";
 import markRoutes from "../modules/marks/marks.routes.js";
+import scheduleRoutes from "../modules/schedule/schedule.routes.js";
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use("/enrollments", enrollmentRoutes);
 router.use("/payments", paymentRoutes);
 router.use("/attendance", attendanceRoutes);
 router.use("/marks", markRoutes);
+router.use("/schedules", scheduleRoutes);
 
 export default router;

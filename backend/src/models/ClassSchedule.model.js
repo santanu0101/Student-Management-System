@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { DAYS_OF_WEEK } from "../constants/enums.js";
 
 const classScheduleSchema = new Schema(
   {
@@ -16,7 +17,7 @@ const classScheduleSchema = new Schema(
 
     dayOfWeek: {
       type: String,
-      enum: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      enum: Object.values(DAYS_OF_WEEK),
       required: true,
     },
 
