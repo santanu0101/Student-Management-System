@@ -4,7 +4,7 @@ import { ClassSchedule, Course, Instructor } from "../../models/index.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { validateObjectId } from "../../utils/validateObjectId.js";
 import { safeRedis } from "../../utils/redisTryCatch.js";
-import { timeToMinutes } from "../../utils/timeToMinute.js";
+import { getTimeRange } from "../../utils/timeToMinute.js";
 
 export class ClassScheduleService {
   static async createSchedule(payload) {
@@ -12,13 +12,6 @@ export class ClassScheduleService {
 
     validateObjectId(course, "Course ID");
     validateObjectId(instructor, "Instructor ID");
-
-    const start = timeToMinutes(startTime);
-    const end = timeToMinutes(endTime);
-
-    if (start >= end) {
-      throw new ApiError(400, "Start time must be before end time");
-    }
 
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -46,14 +39,15 @@ export class ClassScheduleService {
         throw new ApiError(404, "Instructor not found or inactive");
       }
 
+      const { startMin, endMin } = getTimeRange(dayOfWeek, startTime, endTime);
+
       const conflict = await ClassSchedule.findOne(
         {
-          dayOfWeek,
-          $or: [{ course }, { instructor }],
+          $or: [{ course }, { instructor }, { room: room || null }],
           $expr: {
             $and: [
-              { $lt: [{ $toInt: { $substr: ["$startTime", 0, 2] } }, end] },
-              { $gt: [{ $toInt: { $substr: ["$endTime", 0, 2] } }, start] },
+              { $lt: ["$startMin", endMin] },
+              { $gt: ["$endMin", startMin] },
             ],
           },
         },
@@ -62,10 +56,7 @@ export class ClassScheduleService {
       );
 
       if (conflict) {
-        throw new ApiError(
-          409,
-          "Schedule conflict detected for course or instructor"
-        );
+        throw new ApiError(409, "Schedule conflict detected");
       }
 
       const schedule = await ClassSchedule.create(
@@ -77,6 +68,8 @@ export class ClassScheduleService {
             startTime,
             endTime,
             room,
+            startMin,
+            endMin,
           },
         ],
         { session }
@@ -85,7 +78,6 @@ export class ClassScheduleService {
       await session.commitTransaction();
       session.endSession();
 
-      // 🧹 Cache invalidation
       await safeRedis(() => redis.del("schedules:list"));
       await safeRedis(() => redis.del(`schedules:course:${course}`));
       await safeRedis(() => redis.del(`schedules:instructor:${instructor}`));
@@ -176,47 +168,26 @@ export class ClassScheduleService {
 
     try {
       const schedule = await ClassSchedule.findById(id).session(session);
-      if (!schedule) {
-        throw new ApiError(404, "Schedule not found");
-      }
+      if (!schedule) throw new ApiError(404, "Schedule not found");
 
-      let courseExists;
-      if (course) {
-        const courseId = course || schedule.course;
-        courseExists = await Course.findOne(
-          { _id: courseId, isActive: true },
-          null,
-          { session }
-        );
-        if (!courseExists) {
-          throw new ApiError(404, "Course not found or inactive");
-        }
-      }
+      const newDay = dayOfWeek ?? schedule.dayOfWeek;
+      const newStart = startTime ?? schedule.startTime;
+      const newEnd = endTime ?? schedule.endTime;
 
-      if (instructor && courseExists.instructor.toString() !== instructor) {
-        throw new ApiError(400, "Instructor not assigned to this course");
-      }
-
-      if (instructor) {
-        const instructorExists = await Instructor.findOne(
-          { _id: instructor, isActive: true },
-          null,
-          { session }
-        );
-        if (!instructorExists) {
-          throw new ApiError(404, "Instructor not found or inactive");
-        }
-      }
+      const { startMin, endMin } = getTimeRange(newDay, newStart, newEnd);
 
       const conflict = await ClassSchedule.findOne(
         {
           _id: { $ne: id },
-          dayOfWeek,
-          $or: [{ course }, { instructor }],
+          $or: [
+            { course: course ?? schedule.course },
+            { instructor: instructor ?? schedule.instructor },
+            { room: room ?? schedule.room },
+          ],
           $expr: {
             $and: [
-              { $lt: [{ $toInt: { $substr: ["$startTime", 0, 2] } }, end] },
-              { $gt: [{ $toInt: { $substr: ["$endTime", 0, 2] } }, start] },
+              { $lt: ["$startMin", endMin] },
+              { $gt: ["$endMin", startMin] },
             ],
           },
         },
@@ -225,13 +196,10 @@ export class ClassScheduleService {
       );
 
       if (conflict) {
-        throw new ApiError(
-          409,
-          "Schedule conflict detected for course or instructor"
-        );
+        throw new ApiError(409, "Schedule conflict detected");
       }
 
-      Object.assign(schedule, payload);
+      Object.assign(schedule, payload, { startMin, endMin });
       await schedule.save();
 
       await session.commitTransaction();

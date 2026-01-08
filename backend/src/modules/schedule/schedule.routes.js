@@ -12,6 +12,7 @@ import {
   getScheduleByInstructorSchema,
   updateScheduleSchema,
 } from "./schedule.validation.js";
+import { adminHeavyRateLimiter } from "../../middlewares/rateLimit.middleware.js";
 
 const router = Router();
 
@@ -66,6 +67,7 @@ router.post(
   "/",
   authMiddleware,
   authorize("admin"),
+  adminHeavyRateLimiter,
   validate(createScheduleSchema),
   asyncHandler(ClassScheduleController.createSchedule)
 );
@@ -177,6 +179,7 @@ router.patch(
   "/:id",
   authMiddleware,
   authorize("admin"),
+  adminHeavyRateLimiter,
   validate(updateScheduleSchema),
   asyncHandler(ClassScheduleController.updateSchedule)
 );
@@ -203,6 +206,7 @@ router.delete(
   "/:id",
   authMiddleware,
   authorize("admin"),
+  adminHeavyRateLimiter,
   validate(deleteScheduleSchema),
   asyncHandler(ClassScheduleController.deleteSchedule)
 );

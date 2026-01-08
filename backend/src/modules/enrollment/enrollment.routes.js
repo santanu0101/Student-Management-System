@@ -4,7 +4,7 @@ import { authMiddleware } from "../../middlewares/auth.middleware.js";
 import { authorize } from "../../middlewares/role.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import { EnrollmentController } from "./enrollment.controller.js";
-
+import { actionRateLimiter, adminHeavyRateLimiter } from "../../middlewares/rateLimit.middleware.js";
 
 const router = Router();
 
@@ -45,6 +45,7 @@ router.post(
   "/",
   authMiddleware,
   authorize("admin"),
+  adminHeavyRateLimiter,
   asyncHandler(EnrollmentController.enrollStudent)
 );
 
@@ -150,6 +151,7 @@ router.patch(
   "/:id/status",
   authMiddleware,
   authorize("admin", "instructor"),
+  actionRateLimiter,
   asyncHandler(EnrollmentController.updateEnrollmentStatus)
 );
 

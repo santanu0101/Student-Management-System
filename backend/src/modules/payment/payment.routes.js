@@ -3,6 +3,7 @@ import asyncHandler from "../../utils/asyncHandler.js";
 import { PaymentController } from "./payment.controller.js";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
 import { authorize } from "../../middlewares/role.middleware.js";
+import { actionRateLimiter, adminHeavyRateLimiter } from "../../middlewares/rateLimit.middleware.js";
 
 const router = Router();
 
@@ -41,6 +42,7 @@ router.post(
   "/",
   authMiddleware,
   authorize("admin", "student"),
+  actionRateLimiter,
   asyncHandler(PaymentController.createPayment)
 );
 
@@ -182,6 +184,7 @@ router.patch(
   "/:id/status",
   authMiddleware,
   authorize("admin"),
+  adminHeavyRateLimiter,
   asyncHandler(PaymentController.updatePaymentStatus)
 );
 
@@ -207,6 +210,7 @@ router.delete(
   "/:id",
   authMiddleware,
   authorize("admin"),
+  adminHeavyRateLimiter,
   asyncHandler(PaymentController.deletePayment)
 );
 
@@ -253,7 +257,7 @@ router.delete(
  *       409:
  *         description: Course already paid
  */
-router.post("/retry/:paymentId", PaymentController.retryPayment);
+router.post("/retry/:paymentId", authMiddleware, authorize("student", "admin"), actionRateLimiter, PaymentController.retryPayment);
 
 
 /**

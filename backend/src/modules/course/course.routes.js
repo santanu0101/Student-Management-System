@@ -9,6 +9,7 @@ import {
   updateCourseSchema,
   assignInstructorSchema,
 } from "./course.validation.js";
+import { adminHeavyRateLimiter } from "../../middlewares/rateLimit.middleware.js";
 
 const router = Router();
 
@@ -70,6 +71,7 @@ router.post(
   "/",
   authMiddleware,
   authorize("admin"),
+  adminHeavyRateLimiter,
   validate(createCourseSchema),
   asyncHandler(CourseController.createCourse)
 );
@@ -158,6 +160,7 @@ router.patch(
   "/:id",
   authMiddleware,
   authorize("admin"),
+  adminHeavyRateLimiter,
   validate(updateCourseSchema),
   asyncHandler(CourseController.updateCourse)
 );
@@ -184,6 +187,7 @@ router.delete(
   "/:id",
   authMiddleware,
   authorize("admin"),
+  adminHeavyRateLimiter,
   asyncHandler(CourseController.deleteCourse)
 );
 
@@ -221,6 +225,7 @@ router.patch(
   "/:id/instructor",
   authMiddleware,
   authorize("admin"),
+  adminHeavyRateLimiter,
   validate(assignInstructorSchema),
   asyncHandler(CourseController.assignInstructor)
 );

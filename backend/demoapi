@@ -103,12 +103,12 @@ DELETE	            /marks/:id	                    Delete marks            done
 
 📅 10. Class Schedule APIs
 Method	            Endpoint	                        Description
-POST	            /schedules	                    Create class schedule
-GET	                /schedules	                    Get all schedules
-GET	                /schedules/course/:courseId	    Course schedule
-GET	           /schedules/instructor/:instructorId	Instructor schedule
-PATCH	            /schedules/:id	                Update schedule
-DELETE	            /schedules/:id	                Delete schedule
+POST	            /schedules	                    Create class schedule   done
+GET	                /schedules	                    Get all schedules       done
+GET	                /schedules/course/:courseId	    Course schedule         done
+GET	           /schedules/instructor/:instructorId	Instructor schedule     done
+PATCH	            /schedules/:id	                Update schedule         done
+DELETE	            /schedules/:id	                Delete schedule         done
 
 
 🔔 11. Notification APIs

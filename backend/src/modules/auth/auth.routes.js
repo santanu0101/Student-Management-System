@@ -7,7 +7,7 @@ import {
 } from "./auth.validation.js";
 import { AuthController } from "./auth.controller.js";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
-import { loginRateLimiter } from "../../middlewares/rateLimit.middleware.js";
+import { actionRateLimiter, loginRateLimiter, refreshTokenRateLimiter, securityRateLimiter } from "../../middlewares/rateLimit.middleware.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 
 const router = Router();
@@ -76,6 +76,7 @@ router.post(
  */
 router.post(
   "/refresh",
+  loginRateLimiter,
   validate(refreshSchema),
   asyncHandler(AuthController.refresh)
 );
@@ -115,6 +116,7 @@ router.get(
 router.post(
   "/logout",
   authMiddleware,
+  actionRateLimiter,
   asyncHandler(AuthController.logout)
 );
 
@@ -145,6 +147,7 @@ router.post(
 router.patch(
   "/change-password",
   authMiddleware,
+  securityRateLimiter,
   validate(changePasswordSchema),
   asyncHandler(AuthController.changePassword)
 );

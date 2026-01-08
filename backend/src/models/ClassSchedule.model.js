@@ -21,13 +21,13 @@ const classScheduleSchema = new Schema(
       required: true,
     },
 
-    startTime: {
-      type: String,
+    startMin: {
+      type: Number,
       required: true,
     }, // HH:mm
 
-    endTime: {
-      type: String,
+    endMin: {
+      type: Number,
       required: true,
     },
 

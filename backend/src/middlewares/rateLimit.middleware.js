@@ -1,24 +1,42 @@
 import { createRateLimit } from "../config/rateLimit.js";
+import rateLimit from "express-rate-limit";
 
-
-export const loginRateLimiter = createRateLimit({
+export const loginRateLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 5,
-  message: "Too many login attempts from this IP, please try again after 10 minutes.",
-  keyType: "IP",
-})
+  message: "Too many login attempts. Try again later.",
+  standardHeaders: true,
+});
 
+export const securityRateLimiter = createRateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  defaultMax: 5,
 
-export const studentActionRateLimiter = createRateLimit({
-  windowMs: 1 * 60 * 1000,
-  max: 20,
-  message: "Slow down! Too many actions.",
-  keyType: "USER",
-})
+  roleLimits: {
+    student: 5,
+    instructor: 5,
+    admin: 5,
+  },
 
-export const adminRateLimiter = createRateLimit({
+  message: "Too many password change attempts. Try again later.",
+});
+
+export const actionRateLimiter = createRateLimit({
   windowMs: 60 * 1000,
-  max: 30,
+  defaultMax: 10,
+  roleLimits: {
+    student: 10,
+    instructor: 25,
+    admin: 50,
+  },
+  message: "Rate limit exceeded. Slow down.",
+});
+
+export const adminHeavyRateLimiter = createRateLimit({
+  windowMs: 60 * 1000,
+  defaultMax: 20,
+  roleLimits: {
+    admin: 100,
+  },
   message: "Admin rate limit exceeded.",
-  keyType: "USER", 
-})
+});

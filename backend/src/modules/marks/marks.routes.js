@@ -12,6 +12,7 @@ import {
   marksByStudentSchema,
   updateMarksSchema,
 } from "./marks.validation.js";
+import { actionRateLimiter, adminHeavyRateLimiter } from "../../middlewares/rateLimit.middleware.js";
 
 const router = Router();
 
@@ -68,6 +69,7 @@ router.post(
   "/",
   authMiddleware,
   authorize("admin", "instructor"),
+  actionRateLimiter,
   validate(addMarksSchema),
   asyncHandler(MarksController.addMarks)
 );
@@ -189,6 +191,7 @@ router.patch(
   "/:id",
   authMiddleware,
   authorize("admin", "instructor"),
+  actionRateLimiter,
   validate(updateMarksSchema),
   asyncHandler(MarksController.updateMarks)
 );
@@ -215,6 +218,7 @@ router.delete(
   "/:id",
   authMiddleware,
   authorize("admin"),
+  adminHeavyRateLimiter,
   validate(deleteMarksSchema),
   asyncHandler(MarksController.deleteMarks)
 );

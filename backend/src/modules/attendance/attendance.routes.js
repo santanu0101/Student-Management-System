@@ -22,6 +22,7 @@ import {
   markAttendanceSchema,
   updateAttendanceSchema,
 } from "./attendance.validation.js";
+import { actionRateLimiter, adminHeavyRateLimiter } from "../../middlewares/rateLimit.middleware.js";
 
 const router = express.Router();
 
@@ -66,6 +67,7 @@ router.post(
   "/",
   authMiddleware,
   authorize(ROLES.ADMIN, ROLES.INSTRUCTOR),
+  actionRateLimiter,
   validate(markAttendanceSchema),
   asyncHandler(markAttendance)
 );
@@ -183,6 +185,7 @@ router.patch(
   "/:id",
   authMiddleware,
   authorize(ROLES.ADMIN, ROLES.INSTRUCTOR),
+  actionRateLimiter,
   validate(updateAttendanceSchema),
   asyncHandler(updateAttendance)
 );
@@ -209,6 +212,7 @@ router.delete(
   "/:id",
   authMiddleware,
   authorize(ROLES.ADMIN),
+  adminHeavyRateLimiter,
   validate(deleteAttendanceSchema),
   asyncHandler(deleteAttendance)
 );

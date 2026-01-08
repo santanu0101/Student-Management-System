@@ -1,17 +1,16 @@
-import rateLimit, { ipKeyGenerator }  from "express-rate-limit";
+import rateLimit from "express-rate-limit";
 import RedisStore from "rate-limit-redis";
 import redis from "../config/redis.js";
 import { ApiError } from "../utils/ApiError.js";
 
 export const createRateLimit = ({
   windowMs,
-  max,
+  defaultMax,
+  roleLimits,
   message,
-  keyType = "USER",
 }) => {
   return rateLimit({
     windowMs,
-    max,
     standardHeaders: true,
     legacyHeaders: false,
 
@@ -20,15 +19,18 @@ export const createRateLimit = ({
     }),
 
     keyGenerator: (req) => {
-        // console.log(ipKeyGenerator(req));
-      if (keyType === "USER" && req.user?.id) {
-        return `user:${req.user.id}`;
-      }
-      return `ip:${ipKeyGenerator(req)}`;
+      return `user:${req.user.id}`;
     },
 
-    handler: (req, res) => {
-      return res.status(429).json(new ApiError(429, null, message));
+    max: (req) => {
+      const role = req.user.role;
+      return roleLimits?.[role] ?? defaultMax;
+    },
+
+    handler: (_, res) => {
+      return res
+        .status(429)
+        .json(new ApiError(429, null, message));
     },
   });
 };
