@@ -15,6 +15,8 @@ class App {
 
   middleWare() {
     this.app.use(express.json());
+    this.app.set("trust proxy", 1);
+
   }
 
   routes() {

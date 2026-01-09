@@ -7,7 +7,7 @@ import {
 } from "./auth.validation.js";
 import { AuthController } from "./auth.controller.js";
 import { authMiddleware } from "../../middlewares/auth.middleware.js";
-import { actionRateLimiter, loginRateLimiter, refreshTokenRateLimiter, securityRateLimiter } from "../../middlewares/rateLimit.middleware.js";
+import { actionRateLimiter, loginRateLimiter, securityRateLimiter } from "../../middlewares/rateLimit.middleware.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 
 const router = Router();

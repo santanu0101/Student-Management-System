@@ -1,11 +1,28 @@
 import { createRateLimit } from "../config/rateLimit.js";
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
+import { ApiError } from "../utils/ApiError.js";
 
 export const loginRateLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 5,
-  message: "Too many login attempts. Try again later.",
   standardHeaders: true,
+  legacyHeaders: false,
+
+  keyGenerator: (req) => {
+    return `ip:${ipKeyGenerator(req.ip)}`
+  },
+
+  handler: (_, res) => {
+    return res
+      .status(429)
+      .json(
+        new ApiError(
+          429,
+          null,
+          "Too many login attempts from this IP. Try again later."
+        )
+      );
+  },
 });
 
 export const securityRateLimiter = createRateLimit({
