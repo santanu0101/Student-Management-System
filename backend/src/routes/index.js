@@ -9,10 +9,12 @@ import paymentRoutes from "../modules/payment/payment.routes.js";
 import attendanceRoutes from "../modules/attendance/attendance.routes.js";
 import markRoutes from "../modules/marks/marks.routes.js";
 import scheduleRoutes from "../modules/schedule/schedule.routes.js";
+import dashboardRoutes from "../modules/dashboard/dashboard.routes.js";
 
 const router = Router();
 
 router.use("/auth", authRoutes);
+router.use("/dashboard", dashboardRoutes);
 router.use("/departments", departmentRoutes);
 router.use("/students", studentRoutes);
 router.use("/instructors", instructorRoutes);
@@ -22,5 +24,6 @@ router.use("/payments", paymentRoutes);
 router.use("/attendance", attendanceRoutes);
 router.use("/marks", markRoutes);
 router.use("/schedules", scheduleRoutes);
+
 
 export default router;
