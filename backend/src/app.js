@@ -4,6 +4,7 @@ import swaggerUi from "swagger-ui-express";
 import userRoutes from "./routes/index.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import { swaggerSpec } from "./config/swagger.js";
+import corsMiddleware from "./config/cors.js";
 
 class App {
   constructor() {
@@ -14,17 +15,20 @@ class App {
   }
 
   middleWare() {
-    this.app.use(express.json());
     this.app.set("trust proxy", 1);
 
+    // this.app.use(corsMiddleware);
+
+    this.app.use(express.json());
   }
 
   routes() {
-    this.app.use("/api/v1", userRoutes);
     this.app.use(
       "/api/v1/payments/webhook",
       express.raw({ type: "application/json" })
     );
+
+    this.app.use("/api/v1", userRoutes);
     this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   }
 

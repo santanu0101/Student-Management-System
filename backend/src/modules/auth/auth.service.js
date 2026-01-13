@@ -8,28 +8,6 @@ import redis from "../../config/redis.js";
 import { ApiError } from "../../utils/ApiError.js";
 
 export class AuthService {
-  //register
-  static async register(data) {
-    try {
-      const { email, password, role, studentId, instructorId } = data;
-
-      const existingUser = await User.findOne({ email });
-      if (existingUser) throw new ApiError(409, "User already exists");
-
-      const user = await User.create({
-        role: role,
-        email: email,
-        password: password,
-        student: studentId || null,
-        instructor: instructorId || null,
-      });
-
-      return user;
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   //login
   static async login(data) {
     const { email, password } = data;
@@ -99,9 +77,20 @@ export class AuthService {
   }
 
   // logout
-  static async logout(userId) {
+  static async logout(userId, tokenId) {
+    if (!tokenId) {
+      throw new ApiError(400, "Token ID is required for logout");
+    }
     const redisKey = `refresh:${userId}:${tokenId}`;
     await redis.del(redisKey);
+  }
+
+  //logout all
+  static async logoutAll(userId) {
+    const keys = await redis.keys(`refresh:${userId}:*`);
+    if (keys.length > 0) {
+      await redis.del(keys);
+    }
   }
 
   //change Password
