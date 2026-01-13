@@ -17,7 +17,7 @@ class App {
   middleWare() {
     this.app.set("trust proxy", 1);
 
-    // this.app.use(corsMiddleware);
+    this.app.use(corsMiddleware);
 
     this.app.use(express.json());
   }
